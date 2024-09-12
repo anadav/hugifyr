@@ -1,0 +1,42 @@
+# Compiler and flags
+CC = @CC@
+CFLAGS = @CFLAGS@ -Wall -Wextra -O2 -g --std=c11
+LDFLAGS = @LDFLAGS@
+
+# Source and target directories
+SRC_DIR = src
+BIN_DIR = bin
+
+# Ensure bin directory exists
+$(shell mkdir -p $(BIN_DIR))
+
+# makehugelib target
+MAKEHUGELIB_SRC = $(SRC_DIR)/hugifyr.c
+MAKEHUGELIB_TARGET = $(BIN_DIR)/hugifyr
+MAKEHUGELIB_CFLAGS = $(CFLAGS) @LIBDWARF_CFLAGS@
+MAKEHUGELIB_LDFLAGS = $(LDFLAGS)
+
+# tcollapse target
+TCOLLAPSE_SRC = $(SRC_DIR)/tcollapse.c
+TCOLLAPSE_TARGET = $(BIN_DIR)/tcollapse.so
+TCOLLAPSE_CFLAGS = $(CFLAGS) -fPIC
+TCOLLAPSE_LDFLAGS = -shared
+
+# List of targets
+TARGETS = $(MAKEHUGELIB_TARGET) $(TCOLLAPSE_TARGET)
+
+# Default rule
+all: $(TARGETS)
+
+# Rules for building targets
+$(MAKEHUGELIB_TARGET): $(MAKEHUGELIB_SRC)
+	$(CC) $(MAKEHUGELIB_CFLAGS) $< -o $@ $(MAKEHUGELIB_LDFLAGS)
+
+$(TCOLLAPSE_TARGET): $(TCOLLAPSE_SRC)
+	$(CC) $(TCOLLAPSE_CFLAGS) -o $@ $< $(TCOLLAPSE_LDFLAGS)
+
+# Clean rule
+clean:
+	rm -f $(TARGETS)
+
+.PHONY: all clean
